@@ -1,0 +1,35 @@
+# teacher-service - port 8083
+# Defaults target the local infra from deploy/docker-compose.infra.yml (scripts/infra-up.sh).
+# Every value can be overridden with an environment variable (or a root .env file via scripts/).
+server:
+  port: ${SERVER_PORT:8089}
+
+spring:
+  application:
+    name: teacher-service
+
+  r2dbc:
+    url: r2dbc:postgresql://${DB_HOST:localhost}:${DB_PORT:5432}/${DB_NAME:teacher_db}
+    username: ${DB_USER:lms}
+    password: ${DB_PASSWORD:lms}
+    pool:
+      initial-size: 2
+      max-size: 10
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: teacher-service
+      auto-offset-reset: earliest
+
+# Used once this service depends on :commons (JWT + reactive security).
+# The default is for local development only - set JWT_SECRET everywhere else.
+security:
+  jwt:
+    secret: ${JWT_SECRET:local-dev-only-secret-do-not-use-in-production}
+    issuer: ${JWT_ISSUER:live-class-auth}
